@@ -39,9 +39,20 @@ def get_interim_data():
 
         for column_name in column_names_in_table:
             if(column_name == "Average_Price"):
-                concat_table[f'bv_{column_name}'] = concat_table[column_name].str.extract(r'\((.*?)\)')
-                concat_table[f'ov_{column_name}'] = concat_table[column_name].str.extract(r'^(.*?)\(')
+                concat_table['Bracketed_val_avg_price'] = concat_table[column_name].str.extract(r'\((.*?)\)')
+                concat_table['Bracketed_val_avg_price'] = concat_table['Bracketed_val_avg_price'].str.strip()
+                concat_table['Average_price'] = concat_table[column_name].str.extract(r'^(.*?)\(')
+                concat_table['Average_price'] = concat_table['Average_price'].str.strip()
+
                 concat_table.drop(columns=column_name, inplace=True)
+        
+        concat_table["Bracketed_val_avg_price"] = concat_table["Bracketed_val_avg_price"].fillna("NA")
+        concat_table["Bracketed_val_avg_price"] = concat_table["Bracketed_val_avg_price"].replace({"NS": "NA", "N.S.": "NA","N.S": "NA","(N.S":"NA", "(N.S)":"NA"}, regex=False)
+        concat_table["Average_price"] = concat_table["Average_price"].fillna("NA")
+        concat_table["Average_price"] = concat_table["Average_price"].replace({"NS": "NA", "N.S.": "NA", "N.S": "NA","(N.S)":"NA","(N.S":"NA"}, regex=False)
+
+
+   
 
         print(concat_table)
         concat_table.to_csv(f"./interim_data/{table_name}.csv")
